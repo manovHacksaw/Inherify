@@ -1,6 +1,6 @@
-const CONTRACT_METADATA= {
+const CONTRACT_METADATA={
 	"compiler": {
-		"version": "0.8.28+commit.7893614a"
+		"version": "0.8.26+commit.8a97fa7a"
 	},
 	"language": "Solidity",
 	"output": {
@@ -186,6 +186,25 @@ const CONTRACT_METADATA= {
 				"type": "event"
 			},
 			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "WillWithdrawn",
+				"type": "event"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "address",
@@ -278,36 +297,31 @@ const CONTRACT_METADATA= {
 				"inputs": [
 					{
 						"internalType": "address",
-						"name": "_owner",
+						"name": "_beneficiary",
 						"type": "address"
 					}
 				],
-				"name": "distributeUnclaimedWill",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "getActiveNormalWillOwners",
+				"name": "getMilestoneWillsAsBeneficiary",
 				"outputs": [
 					{
 						"internalType": "address[]",
-						"name": "",
+						"name": "owners",
 						"type": "address[]"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "getAllWills",
-				"outputs": [
+					},
 					{
-						"internalType": "address[]",
-						"name": "",
-						"type": "address[]"
+						"internalType": "uint256[]",
+						"name": "willIndexes",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "releaseIndexes",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "releaseAmounts",
+						"type": "uint256[]"
 					}
 				],
 				"stateMutability": "view",
@@ -317,78 +331,21 @@ const CONTRACT_METADATA= {
 				"inputs": [
 					{
 						"internalType": "address",
-						"name": "user",
+						"name": "_beneficiary",
 						"type": "address"
 					}
 				],
-				"name": "getMilestoneWills",
+				"name": "getNormalWillAsBeneficiary",
 				"outputs": [
 					{
-						"components": [
-							{
-								"internalType": "uint256",
-								"name": "totalAmount",
-								"type": "uint256"
-							},
-							{
-								"internalType": "uint256",
-								"name": "claimedAmount",
-								"type": "uint256"
-							},
-							{
-								"components": [
-									{
-										"internalType": "address",
-										"name": "beneficiary",
-										"type": "address"
-									},
-									{
-										"internalType": "uint256",
-										"name": "releaseTime",
-										"type": "uint256"
-									},
-									{
-										"internalType": "uint256",
-										"name": "releasePercentage",
-										"type": "uint256"
-									},
-									{
-										"internalType": "string",
-										"name": "description",
-										"type": "string"
-									},
-									{
-										"internalType": "bool",
-										"name": "isClaimed",
-										"type": "bool"
-									}
-								],
-								"internalType": "struct WillManager.MilestoneRelease[]",
-								"name": "releases",
-								"type": "tuple[]"
-							},
-							{
-								"internalType": "bool",
-								"name": "isFullyClaimed",
-								"type": "bool"
-							}
-						],
-						"internalType": "struct WillManager.MilestoneWill[]",
-						"name": "",
-						"type": "tuple[]"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "getTotalWills",
-				"outputs": [
+						"internalType": "address[]",
+						"name": "owners",
+						"type": "address[]"
+					},
 					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
+						"internalType": "uint256[]",
+						"name": "amounts",
+						"type": "uint256[]"
 					}
 				],
 				"stateMutability": "view",
@@ -474,7 +431,7 @@ const CONTRACT_METADATA= {
 					},
 					{
 						"internalType": "uint256",
-						"name": "tenYears",
+						"name": "creationTime",
 						"type": "uint256"
 					},
 					{
@@ -486,11 +443,6 @@ const CONTRACT_METADATA= {
 						"internalType": "bool",
 						"name": "isClaimed",
 						"type": "bool"
-					},
-					{
-						"internalType": "uint256",
-						"name": "creationTime",
-						"type": "uint256"
 					}
 				],
 				"stateMutability": "view",
@@ -541,6 +493,19 @@ const CONTRACT_METADATA= {
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "withdrawNormalWill",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
 			}
 		],
 		"devdoc": {
@@ -558,7 +523,7 @@ const CONTRACT_METADATA= {
 		"compilationTarget": {
 			"contracts/WillManager.sol": "WillManager"
 		},
-		"evmVersion": "shanghai",
+		"evmVersion": "cancun",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
@@ -571,23 +536,22 @@ const CONTRACT_METADATA= {
 	},
 	"sources": {
 		"@openzeppelin/contracts/token/ERC20/IERC20.sol": {
-			"keccak256": "0xe06a3f08a987af6ad2e1c1e774405d4fe08f1694b67517438b467cecf0da0ef7",
+			"keccak256": "0xc6a8ff0ea489379b61faa647490411b80102578440ab9d84e9a957cc12164e70",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://df6f0c459663c9858b6cba2cda1d14a7d05a985bed6d2de72bd8e78c25ee79db",
-				"dweb:/ipfs/QmeTTxZ7qVk9rjEv2R4CpCwdf8UMCcRqDNMvzNxHc3Fnn9"
+				"bzz-raw://0ea104e577e63faea3b69c415637e99e755dcbf64c5833d7140c35a714d6d90c",
+				"dweb:/ipfs/Qmau6x4Ns9XdyynRCNNp3RhLqijJjFm7z5fyZazfYFGYdq"
 			]
 		},
 		"contracts/WillManager.sol": {
-			"keccak256": "0x3f6f35f6a1c657e6ba9b71dd7ff79e32c2bbc7a427bec907da83659141c2e15a",
+			"keccak256": "0x810ca9395b9ecc7bb033ad565638dfa31ef013603b31d4f568607e23acf85fa1",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://b58b3eb71cf13db05a7c49bba2a2ff860954080ec3955f5e304835002b9e9d94",
-				"dweb:/ipfs/Qmd6x5yvqE9Qczz2YMet6JdZCj6tMUwhCnKSfVNadA6gQN"
+				"bzz-raw://3d9600f82ed15f9e0c740ba87200f88bda2b92e4007b67cf8469e8af56ced66d",
+				"dweb:/ipfs/QmWyVk1EykinjWPReripbR5H3vSL74mVHBeuxGYGBg5gQQ"
 			]
 		}
 	},
 	"version": 1
 }
-
 export default CONTRACT_METADATA.output.abi;
