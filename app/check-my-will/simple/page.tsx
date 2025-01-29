@@ -4,7 +4,7 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
-import { useSmartWill } from "../context/SmartWillContext"
+import { useSmartWill } from "@/context/SmartWillContext"
 import { Loader2, PlusCircle, Clock, Wallet, AlertCircle, User, FileText, Calendar, Coins } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -72,7 +72,7 @@ const CheckMyWill = () => {
       }
     }
 
- 
+    updateCounter()
     const interval = setInterval(updateCounter, 1000) // Update every second
     return () => clearInterval(interval)
   }

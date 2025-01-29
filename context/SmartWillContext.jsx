@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { ethers } from "ethers";
+import { ethers, formatEther } from "ethers";
 import { CONTRACT_ADDRESS } from "../utils";
 import CONTRACT_ABI from "@/abi";
 
@@ -9,8 +9,9 @@ const SmartWillContext = createContext();
 
 export function SmartWillProvider({ children }) {
   const [account, setAccount] = useState(null);
+  const [balance, setBalance ] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
-  const [ovider, setProvider] = useState(null);
+  const [provider, setProvider] = useState(null);
   const [contract, setContract] = useState(null);
   const [willData, setWillData] = useState(null);
   const [allWills, setAllWills] = useState([]);
@@ -20,7 +21,7 @@ export function SmartWillProvider({ children }) {
   // Initialize provider and contract
   useEffect(() => {}, []);
 
-  // Connect to MetaMask and retrieve account info
+  // Connect to MetaMask and retrieve account info (***** DONE *****)
   async function connectWallet() {
     if (typeof window.ethereum !== "undefined") {
       try {
@@ -29,6 +30,7 @@ export function SmartWillProvider({ children }) {
 
         const accounts = await providerInstance.send("eth_requestAccounts", []);
         const balance = await providerInstance.getBalance(accounts[0]);
+        setBalance(formatEther(balance))
 
         setAccount(accounts[0]);
 
@@ -45,81 +47,68 @@ export function SmartWillProvider({ children }) {
     }
   }
 
-  async function getContractBalance() {
-    try {
-      setLoading(true);
-
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-
-      // Create a contract instance with the signer
-      const contract = new ethers.Contract(
-        CONTRACT_ADDRESS,
-        CONTRACT_ABI,
-        signer
-      );
-      console.log(contract);
-
-      const balance = await contract.getBalance();
-      return ethers.formatEther(balance);
-    } catch (error) {
-      console.error("Error fetching contract balance: ", error);
-      setError("Error fetching contract balance.");
-    } finally {
-      setLoading(false);
+  
+// function to create normal will (***** DONE *****)
+ async function createNormalWill(beneficiary, description, amount) {
+  try {
+    if(!account){
+      return false;
     }
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+    const value = ethers.parseEther(amount);
+    const tx = await contract.createNormalWill(beneficiary, description, { value });
+    await tx.wait();
+    return tx;
+
+
+  } catch (error) {
+    console.error("Error creating normal will :", error);
+      return false; // If an error occurs, assume the will doesn't exist
   }
+  
+ }
 
-  async function createWill(recipientAddress, description, amount) {
-    try {
-      setLoading(true);
-      console.log(account)
-  
-      // Check if the user is connected
-      if (!isConnected) {
-        alert("Please connect your wallet first.");
-        return;
-      }
-  
-      // Ensure that description is at least 50 characters
-      if (description.length < 50) {
-        alert("Description must be at least 50 characters long.");
-        return;
-      }
-  
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-  
-      // Create a contract instance with the signer
-      const contract = new ethers.Contract(
-        CONTRACT_ADDRESS,
-        CONTRACT_ABI,
-        signer
-      );
-
-      console.log(contract)
-  
-      // Call the createWill function on the smart contract
-      const tx = await contract.createWill(recipientAddress, description, {
-        value: ethers.parseEther(amount), 
-      });
-  
-      // Wait for the transaction to be mined
-      await tx.wait();
-  
-      // Successfully created the will
-      alert("Will created successfully!");
-      console.log(tx);
-  
-    } catch (error) {
-      console.error("Error creating will: ", error);
-      alert("Error creating the will. Please try again.");
-    } finally {
-      setLoading(false);
+ // function to get normal will by the address of the owner (***** DONE *****)
+ async function getNormalWill(ownerAddress) {
+  try {
+    if(!account){
+      return false;
     }
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+      const will = await contract.normalWills(ownerAddress);
+      console.log("Normal Will Details:", will);
+      return will;
+  } catch (error) {
+      console.error("Error fetching normal will:", error);
   }
+}
+// function to check will by the address   (***** DONE *****)
+async function hasCreatedWill() {
+  try {
+    if (!account) {
+      return false; // If no account is connected
+    }
 
-  async function hasCreatedWill() {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+    const result = await contract.hasNormalWill(account); // Call hasCreatedWill for the current account
+    return result; // It will return true or false based on whether the will exists
+  } catch (error) {
+    console.error("Error checking if will exists:", error);
+    return false; // If an error occurs, assume the will doesn't exist
+  }
+}
+
+
+ //function to ping the smart contract to inform activity (***** DONE *****)
+  async function ping() {
     try {
       if (!account) {
         return false; // If no account is connected
@@ -129,13 +118,70 @@ export function SmartWillProvider({ children }) {
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
   
-      const result = await contract.hasCreatedWill(account); // Call hasCreatedWill for the current account
-      return result; // It will return true or false based on whether the will exists
+      const tx = await contract.ping(); // Call ping function
+      await tx.wait();
+      return tx;
     } catch (error) {
-      console.error("Error checking if will exists:", error);
+      console.error("Error pinging contract:", error);
       return false; // If an error occurs, assume the will doesn't exist
     }
   }
+
+  //function to deposit more in normal will (***** DONE *****)
+
+  async function depositNormalWill(amount){
+    try {
+      if (!account) {
+        return false; // If no account is connected{
+        
+      } 
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+      const amountDeposited = ethers.parseEther(amount);
+      const result = await contract.deposit({value: amountDeposited}); // Call deposit for the current account
+      return result; // It will return true or false based on whether the will exists
+    } catch (
+      error
+    ) {
+      console.error("Error depositing to existsing will:", error);
+      return false; // If an error occurs
+    }
+  }
+
+  // functuon to create customized will 
+  const createCustomizedWill = async (beneficiaries, releaseTimes, releasePercentages, descriptions) => {
+    try {
+      if (!window.ethereum) {
+        throw new Error('Please install MetaMask to create a will');
+      }
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      // Convert ETH amount to Wei
+      const amountInWei = ethers.parseEther(totalAmount);
+
+      // Create the will
+      const tx = await contract.createMilestoneWill(
+        beneficiaries,
+        releaseTimes,
+        releasePercentages,
+        descriptions,
+        { value: amountInWei }
+      );
+
+      setLoading(true);
+      await tx.wait();
+      
+    } catch (err) {
+      setError(err.message || 'Error creating will');
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const getWillDetails = async (address) => {
     try {
@@ -150,16 +196,68 @@ export function SmartWillProvider({ children }) {
       throw new Error('Failed to fetch will details');
     }
   };
+
+  async function getBeneficiaryWills() {
+    try {
+      if (!account) return [];
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      const wills = await contract.getBeneficiaryWills(account);
+      return wills;
+    } catch (error) {
+      console.error("Error fetching beneficiary wills:", error);
+      return [];
+    }
+  }
+
+  // Function to claim a will (if the user is a beneficiary)
+  async function claimWill(willId) {
+    try {
+      if (!account) return false;
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      const tx = await contract.claimWill(willId);
+      await tx.wait();
+      return true;
+    } catch (error) {
+      console.error("Error claiming will:", error);
+      return false;
+    }
+  }
+
+  async function getAllWills() {
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      const wills = await contract.getAllWills();
+      return wills;
+    } catch (error) {
+      console.error("Error fetching all wills:", error);
+      return [];
+    }
+  }
+
+ 
   
   
 
   const value = {
     connectWallet,
-    account,
+    account, balance,
     isConnected,
-    getContractBalance,
-    createWill, hasCreatedWill, getWillDetails
-  };
+    
+    createNormalWill, getNormalWill, ping, hasCreatedWill, getWillDetails,  depositNormalWill,
+    createCustomizedWill,
+    getBeneficiaryWills,  getAllWills, getWillDetails
+  }; 
 
   return (
     <SmartWillContext.Provider value={value}>

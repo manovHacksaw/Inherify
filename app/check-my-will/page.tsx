@@ -1,13 +1,37 @@
-import CheckMyWill from "../../components/CheckMyWill"
+"use client"
+import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
 
-export default function CheckMyWillPage() {
+const Page = () => {
+  const [hasSimpleWill, setHasSimpleWill] = useState(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    // Logic to check if the user has a simple will (for example, checking from a context, API, etc.)
+    // For the sake of this example, let's assume we have a state or API to determine that.
+    // Replace with actual check logic.
+    const userHasSimpleWill = true  // This would be dynamic based on user data.
+    setHasSimpleWill(userHasSimpleWill)
+  }, [])
+
+  const handleRedirect = () => {
+    router.push('/check-my-will/simple')
+  }
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-display text-primary mb-8 text-center">Check My Will</h1>
-        <CheckMyWill />
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      {hasSimpleWill ? (
+        <div className="w-full max-w-md text-center">
+          <Button onClick={handleRedirect} className="w-full">
+            Check Your Simple Will
+          </Button>
+        </div>
+      ) : (
+        <p>You do not have a Simple Will.</p>
+      )}
     </div>
   )
 }
 
+export default Page

@@ -2,6 +2,7 @@ import localFont from "next/font/local";
 import Navbar from "../components/Navbar";
 
 import "./globals.css";
+import { SmartWillProvider } from "@/context/SmartWillContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -22,10 +23,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="min-h-screen bg-background font-sans antialiased">
+    <SmartWillProvider>
+    <body className="min-h-screen bg-background font-sans antialiased">
         <Navbar />
         <main className="pt-16">{children}</main>
       </body>
+    </SmartWillProvider>
+    
     </html>
   );
 }
