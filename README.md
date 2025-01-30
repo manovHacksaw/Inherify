@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Inherify 
 
-## Getting Started
+![Inherify Banner](https://via.placeholder.com/1200x400.png?text=Secure+Your+Legacy+on+Blockchain)
 
-First, run the development server:
+A revolutionary Ethereum-based solution for modern inheritance management, combining time-locked asset distribution with programmable milestone releases.
 
+## Key Features ✨
+
+**🛡️ Dual Will System**
+- **Normal Wills**: Single-beneficiary with 10-year inactivity lock
+- **Milestone Wills**: Multi-phase distributions with custom triggers
+
+**⏰ Time-Based Automation**
+- 10-year activity check (resettable via `ping()`)
+- 1-year withdrawal cooldown period
+- Milestone-specific release schedules
+
+**🔒 Built-in Protections**
+- Immutable beneficiary assignments
+- Anti-frontrunning design
+- Platform fee collection on creation
+- Claim validation safeguards
+
+## Developer Integration 🧐
+
+### Installation
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install @openzeppelin/contracts ethers
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## User Flow Diagram 📊
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```mermaid
+graph TD
+    A[User Creates Will] --> B{Normal or Milestone?}
+    B -->|Normal| C[Lock ETH with Beneficiary]
+    B -->|Milestone| D[Configure Release Schedule]
+    C --> E[Ping System Every 10 Years]
+    D --> F[Automatic Time-Based Releases]
+    E --> G[Beneficiary Claims After Inactivity]
+    F --> H[Gradual Asset Distribution]
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Security Architecture 🛡️
 
-## Learn More
+1. **Fund Locking**: Assets held in contract until conditions met
+2. **Temporal Validation**:
+   - 10-year inactivity window for normal wills
+   - Time-based milestone releases
+   - 1-year withdrawal cooldown
+3. **Identity Verification**:
+   - Beneficiary ≠ Owner
+   - Claimant signature validation
+4. **Financial Safeguards**:
+   - Percentage-based releases (≤100%)
+   - Anti-overclaim protection
+   - Platform fee deduction on creation
 
-To learn more about Next.js, take a look at the following resources:
+## Maintenance Operations 🔄
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Withdraw Funds (After 1 Year)**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Update Beneficiary**
 
-## Deploy on Vercel
+**Reset Activity Timer**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contribution Guidelines 🤝
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+We welcome contributions! Please follow our workflow:
+1. Fork repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
+
+## License 📝
+
+MIT Licensed - See [LICENSE](https://opensource.org/licenses/MIT) for details.
+
+---
+
+**Inherify** - Redefining legacy planning through blockchain technology  
+
+
