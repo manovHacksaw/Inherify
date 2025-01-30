@@ -29,7 +29,7 @@ npm install @openzeppelin/contracts ethers
 ```mermaid
 graph TD
     A[User Creates Will] --> B{Normal or Milestone?}
-    B -->|Normal| C[Lock ETH with Beneficiary]
+    B -->|Normal| C[Lock TELOS with Beneficiary]
     B -->|Milestone| D[Configure Release Schedule]
     C --> E[Ping System Every 10 Years]
     D --> F[Automatic Time-Based Releases]
