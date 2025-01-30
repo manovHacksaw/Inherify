@@ -1,8 +1,4 @@
-# Inherify 
-
-![Inherify Banner](https://via.placeholder.com/1200x400.png?text=Secure+Your+Legacy+on+Blockchain)
-
-A revolutionary Ethereum-based solution for modern inheritance management, combining time-locked asset distribution with programmable milestone releases.
+# Inherify - Secure Your Legacy
 
 ## Key Features ✨
 
